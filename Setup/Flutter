@@ -1,0 +1,56 @@
+https://docs.flutter.dev/install/manual - for flutter
+
+https://developer.android.com/studio?utm_source=chatgpt.com -- Android Studio
+
+
+you see options like 
+☑ Android Studio
+☑ Android Virtual Device
+click next 
+
+installation location : C:\Program Files\Android\Android Studio
+
+click install and wait for it finish. 
+
+During first launch 
+Do you want to import settings?
+  Do not import settings
+Standard or Custom
+  Standard
+
+Downloading Android SDK...
+
+Downloading Build Tools...
+
+Downloading Platform Tools...
+
+Downloading Emulator...
+
+Let it finish. 
+
+In Android Studio, don't create a project.
+Instead, click:
+
+More Actions ▼
+
+You should see:
+SDK Manager
+Virtual Device Manager
+Device Manager
+Click SDK Manager.
+
+At the top you'll see two tabs:
+
+SDK Platforms
+SDK Tools
+
+Click SDK Tools.
+Look for 
+☐ Android SDK Command-line Tools (latest)
+check it and apply 
+
+once done open cmd and type 
+flutter doctor --android-licenses
+
+accept y several times. 
+
