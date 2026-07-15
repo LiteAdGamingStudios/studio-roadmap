@@ -1,0 +1,17 @@
+Step 1: 
+
+in Android studio 
+
+Click More Actions
+
+Virtual Device Manager
+
+Step 2:
+
+Create Device --> Pixel 8( if you dont have pixel 8 its ok, even i also dont have, its just a virtual machine) --> Next
+
+Step 3:
+
+it will select the package for you automatically. click finish. 
+
+it will download a file for 2 GB. Let it download. 
