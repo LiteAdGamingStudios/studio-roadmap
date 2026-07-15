@@ -1,0 +1,414 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const TicTacToeApp());
+}
+
+class TicTacToeApp extends StatelessWidget {
+  const TicTacToeApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Tic Tac Toe',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.blue,
+      ),
+      home: const DifficultyScreen(),
+    );
+  }
+}
+
+enum Difficulty {
+  easy,
+  medium,
+  hard,
+}
+
+class DifficultyScreen extends StatelessWidget {
+  const DifficultyScreen({super.key});
+
+  void openGame(BuildContext context, Difficulty difficulty) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GameScreen(difficulty: difficulty),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tic Tac Toe'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Choose Difficulty',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 40),
+            DifficultyButton(
+              text: 'Easy',
+              onPressed: () => openGame(context, Difficulty.easy),
+            ),
+            const SizedBox(height: 16),
+            DifficultyButton(
+              text: 'Medium',
+              onPressed: () => openGame(context, Difficulty.medium),
+            ),
+            const SizedBox(height: 16),
+            DifficultyButton(
+              text: 'Hard',
+              onPressed: () => openGame(context, Difficulty.hard),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DifficultyButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const DifficultyButton({
+    super.key,
+    required this.text,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 20),
+        ),
+      ),
+    );
+  }
+}
+
+class GameScreen extends StatefulWidget {
+  final Difficulty difficulty;
+
+  const GameScreen({
+    super.key,
+    required this.difficulty,
+  });
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  final Random random = Random();
+
+  List<String> board = List.filled(9, '');
+  bool gameOver = false;
+  bool computerThinking = false;
+  String status = 'Your turn - X';
+
+  static const List<List<int>> winningLines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
+  void playerMove(int index) {
+    if (gameOver || computerThinking || board[index].isNotEmpty) {
+      return;
+    }
+
+    setState(() {
+      board[index] = 'X';
+    });
+
+    if (finishGame('X')) {
+      return;
+    }
+
+    setState(() {
+      computerThinking = true;
+      status = 'Computer is thinking...';
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted || gameOver) {
+        return;
+      }
+
+      final move = chooseComputerMove();
+
+      if (move == null) {
+        return;
+      }
+
+      setState(() {
+        board[move] = 'O';
+        computerThinking = false;
+      });
+
+      if (!finishGame('O')) {
+        setState(() {
+          status = 'Your turn - X';
+        });
+      }
+    });
+  }
+
+  int? chooseComputerMove() {
+    switch (widget.difficulty) {
+      case Difficulty.easy:
+        return randomMove();
+
+      case Difficulty.medium:
+        return mediumMove();
+
+      case Difficulty.hard:
+        return bestMove();
+    }
+  }
+
+  int? randomMove() {
+    final empty = emptyPositions();
+
+    if (empty.isEmpty) {
+      return null;
+    }
+
+    return empty[random.nextInt(empty.length)];
+  }
+
+  int? mediumMove() {
+    final computerWinningMove = immediateWinningMove('O');
+
+    if (computerWinningMove != null) {
+      return computerWinningMove;
+    }
+
+    if (random.nextBool()) {
+      final blockingMove = immediateWinningMove('X');
+
+      if (blockingMove != null) {
+        return blockingMove;
+      }
+    }
+
+    if (board[4].isEmpty && random.nextBool()) {
+      return 4;
+    }
+
+    return randomMove();
+  }
+
+  int? bestMove() {
+    int highestScore = -1000;
+    int? selectedMove;
+
+    for (final index in emptyPositions()) {
+      board[index] = 'O';
+      final score = minimax(false);
+      board[index] = '';
+
+      if (score > highestScore) {
+        highestScore = score;
+        selectedMove = index;
+      }
+    }
+
+    return selectedMove;
+  }
+
+  int minimax(bool computerTurn) {
+    if (hasWinner('O')) {
+      return 10;
+    }
+
+    if (hasWinner('X')) {
+      return -10;
+    }
+
+    if (emptyPositions().isEmpty) {
+      return 0;
+    }
+
+    if (computerTurn) {
+      int highestScore = -1000;
+
+      for (final index in emptyPositions()) {
+        board[index] = 'O';
+        highestScore = max(highestScore, minimax(false));
+        board[index] = '';
+      }
+
+      return highestScore;
+    }
+
+    int lowestScore = 1000;
+
+    for (final index in emptyPositions()) {
+      board[index] = 'X';
+      lowestScore = min(lowestScore, minimax(true));
+      board[index] = '';
+    }
+
+    return lowestScore;
+  }
+
+  int? immediateWinningMove(String player) {
+    for (final index in emptyPositions()) {
+      board[index] = player;
+      final wins = hasWinner(player);
+      board[index] = '';
+
+      if (wins) {
+        return index;
+      }
+    }
+
+    return null;
+  }
+
+  List<int> emptyPositions() {
+    return List.generate(9, (index) => index)
+        .where((index) => board[index].isEmpty)
+        .toList();
+  }
+
+  bool hasWinner(String player) {
+    return winningLines.any(
+      (line) => line.every(
+        (index) => board[index] == player,
+      ),
+    );
+  }
+
+  bool finishGame(String player) {
+    if (hasWinner(player)) {
+      setState(() {
+        gameOver = true;
+        computerThinking = false;
+        status = player == 'X' ? 'You win!' : 'Computer wins!';
+      });
+
+      return true;
+    }
+
+    if (board.every((cell) => cell.isNotEmpty)) {
+      setState(() {
+        gameOver = true;
+        computerThinking = false;
+        status = 'Draw!';
+      });
+
+      return true;
+    }
+
+    return false;
+  }
+
+  void restartGame() {
+    setState(() {
+      board = List.filled(9, '');
+      gameOver = false;
+      computerThinking = false;
+      status = 'Your turn - X';
+    });
+  }
+
+  String difficultyName() {
+    switch (widget.difficulty) {
+      case Difficulty.easy:
+        return 'Easy';
+      case Difficulty.medium:
+        return 'Medium';
+      case Difficulty.hard:
+        return 'Hard';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${difficultyName()} Mode'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Text(
+              status,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 30),
+            Expanded(
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 9,
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemBuilder: (context, index) {
+                  return ElevatedButton(
+                    onPressed: () => playerMove(index),
+                    child: Text(
+                      board[index],
+                      style: const TextStyle(
+                        fontSize: 55,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 58,
+              child: ElevatedButton(
+                onPressed: restartGame,
+                child: const Text(
+                  'Restart Game',
+                  style: TextStyle(fontSize: 19),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
