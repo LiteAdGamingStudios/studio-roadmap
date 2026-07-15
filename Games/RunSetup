@@ -1,0 +1,8 @@
+cd C:\
+flutter create litead_gaming
+cd litead_gaming
+
+
+code .
+
+goto lib--> Main.dart and delete everything and copy the game
