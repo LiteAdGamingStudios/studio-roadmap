@@ -1,0 +1,38 @@
+import 'dart:math';
+
+int? randomMove(List<String> board, Random random) {
+  final empty = List.generate(9, (index) => index)
+      .where((index) => board[index].isEmpty)
+      .toList();
+
+  if (empty.isEmpty) {
+    return null;
+  }
+
+  return empty[random.nextInt(empty.length)];
+}
+
+List<int> emptyPositions(List<String> board) {
+  return List.generate(9, (index) => index)
+      .where((index) => board[index].isEmpty)
+      .toList();
+}
+
+const List<List<int>> winningLines = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
+
+bool hasWinner(List<String> board, String player) {
+  return winningLines.any(
+        (line) => line.every(
+          (index) => board[index] == player,
+    ),
+  );
+}

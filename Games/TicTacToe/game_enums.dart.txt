@@ -1,0 +1,10 @@
+enum Difficulty {
+  easy,
+  medium,
+  hard,
+}
+
+enum GameMode {
+  twoPlayer,
+  ai,
+}

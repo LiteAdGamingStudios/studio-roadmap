@@ -1,0 +1,38 @@
+import 'dart:math';
+import 'models/game_enums.dart';
+import 'widgets/difficulty_button.dart';
+import 'screens/difficulty_screen.dart';
+import 'screens/mode_selection_screen.dart';
+import 'screens/game_screen.dart';
+import 'package:confetti/confetti.dart';
+import 'package:flutter/material.dart';
+
+
+void main() {
+  runApp(const TicTacToeApp());
+}
+
+class TicTacToeApp extends StatelessWidget {
+  const TicTacToeApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Tic Tac Toe',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xff101820),
+        fontFamily: 'Roboto',
+      ),
+      home: const ModeSelectionScreen(),
+    );
+  }
+}
+
+
+
+
+
+
