@@ -16,6 +16,7 @@ class GameScreen extends StatefulWidget {
     required this.gameMode,
   });
 
+
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
@@ -53,7 +54,6 @@ class _GameScreenState extends State<GameScreen> {
       duration: const Duration(seconds: 3),
     );
   }
-
   Future<void> playMoveSound(String player) async {
     if (player == 'X') {
       await xAudioPlayer.stop();
@@ -72,8 +72,11 @@ class _GameScreenState extends State<GameScreen> {
 
   Future<void> playResultSound(String fileName) async {
     await resultAudioPlayer.stop();
-    await resultAudioPlayer.play(AssetSource('sounds/$fileName'));
+    await resultAudioPlayer.play(
+      AssetSource('sounds/$fileName'),
+    );
   }
+
 
   void playerMove(int index) {
     if (gameOver ||
@@ -179,6 +182,7 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     return randomMove(board, random);
+
   }
 
   int? bestMove() {
@@ -261,18 +265,20 @@ class _GameScreenState extends State<GameScreen> {
             status = '🎉 Player X Wins!';
             _confettiController.play();
 
-            Future.delayed(const Duration(milliseconds: 300), () {
-              playResultSound('Win.wav');
-              showGameOverDialog('🎉 Player X Wins!');
-            });
+            Future.delayed(
+              const Duration(milliseconds: 300),
+                  () { playResultSound('Win.wav');
+                showGameOverDialog('🎉 Player X Wins!');},
+            );
           } else {
             status = '🎉 You Win!';
             _confettiController.play();
 
-            Future.delayed(const Duration(milliseconds: 300), () {
-              playResultSound('Win.wav');
-              showGameOverDialog('🎉 You defeated the AI!');
-            });
+            Future.delayed(
+              const Duration(milliseconds: 300),
+                  () { playResultSound('Win.wav');
+                showGameOverDialog('🎉 You defeated the AI!');},
+            );
           }
         } else {
           computerScore++;
@@ -281,17 +287,19 @@ class _GameScreenState extends State<GameScreen> {
             status = '🎉 Player O Wins!';
             _confettiController.play();
 
-            Future.delayed(const Duration(milliseconds: 300), () {
-              playResultSound('Win.wav');
-              showGameOverDialog('🎉 Player O Wins!');
-            });
+            Future.delayed(
+              const Duration(milliseconds: 300),
+                  () { playResultSound('Win.wav');
+                showGameOverDialog('🎉 Player O Wins!');},
+            );
           } else {
             status = '🤖 Computer Wins!';
 
-            Future.delayed(const Duration(milliseconds: 300), () {
-              playResultSound('Loss.wav');
-              showGameOverDialog('🤖 Better luck next time!');
-            });
+            Future.delayed(
+              const Duration(milliseconds: 300),
+                  () { playResultSound('Loss.wav');
+                showGameOverDialog('🤖 Better luck next time!');},
+            );
           }
         }
       });
@@ -304,12 +312,12 @@ class _GameScreenState extends State<GameScreen> {
         gameOver = true;
         computerThinking = false;
         drawScore++;
-        status = '🤝 Draw!';
-      });
-      Future.delayed(const Duration(milliseconds: 300), () {
-        playResultSound('Draw.wav');
-        showGameOverDialog("🤝 It's a Draw!");
-      });
+        status = '🤝 Draw!';});
+        Future.delayed(
+          const Duration(milliseconds: 300),
+              () { playResultSound('Draw.wav');
+            showGameOverDialog("🤝 It's a Draw!");},
+        );
 
       return true;
     }
@@ -342,7 +350,9 @@ class _GameScreenState extends State<GameScreen> {
           title: const Center(
             child: Text(
               "🏆 GAME OVER",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           content: Text(
@@ -395,13 +405,11 @@ class _GameScreenState extends State<GameScreen> {
         return 'Hard';
     }
   }
-
   @override
   void dispose() {
     _confettiController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -457,6 +465,7 @@ class _GameScreenState extends State<GameScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
+
                           Column(
                             children: [
                               Text(
@@ -506,6 +515,7 @@ class _GameScreenState extends State<GameScreen> {
                               ),
                             ],
                           ),
+
                         ],
                       ),
 
@@ -539,11 +549,11 @@ class _GameScreenState extends State<GameScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: 9,
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () => playerMove(index),
